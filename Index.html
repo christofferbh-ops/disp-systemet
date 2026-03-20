@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lagerberegner</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#f5f4f0;--surface:#fff;--surface2:#f0ede8;
+  --border:#ddd9d3;--text:#1a1916;--text2:#6b6860;--text3:#9b9890;
+  --blue:#1a56db;--blue-bg:#eff4ff;--blue-text:#1e429f;
+  --green:#0e7c57;--orange:#c2410c;
+  --r:8px;--rl:12px;
+}
+body{font-family:'IBM Plex Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:2rem 1rem 4rem;}
+.hdr{max-width:960px;margin:0 auto 2.5rem;}
+.hdr h1{font-size:22px;font-weight:500;letter-spacing:-.02em;}
+.hdr p{font-size:14px;color:var(--text2);margin-top:4px;}
+.wrap{max-width:960px;margin:0 auto;display:flex;flex-direction:column;gap:2rem;}
+.slbl{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:.75rem;font-family:'IBM Plex Mono',monospace;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:1.5rem;}
+.tabs{display:flex;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;width:fit-content;margin-bottom:1.25rem;}
+.tab{padding:7px 18px;font-size:13px;cursor:pointer;background:transparent;border:none;color:var(--text2);font-family:'IBM Plex Sans',sans-serif;transition:background .12s;}
+.tab:not(:last-child){border-right:1px solid var(--border);}
+.tab.on{background:var(--surface2);color:var(--text);font-weight:500;}
+.tab:hover:not(.on){background:var(--surface2);}
+.fdesc{font-size:12px;color:var(--text2);background:var(--surface2);border-radius:var(--r);padding:8px 12px;margin-bottom:1.25rem;font-family:'IBM Plex Mono',monospace;line-height:1.6;}
+.sgrid{display:flex;flex-direction:column;gap:10px;}
+.srow{display:grid;gap:10px;align-items:end;background:var(--surface2);border-radius:var(--r);padding:12px;}
+.sl{grid-template-columns:1.6fr 1.1fr 1.1fr 1.1fr 1fr 1.3fr;}
+.cl{grid-template-columns:1.2fr 1fr 1fr 1fr 1fr 1fr 1.1fr 1.3fr;}
+.pl{grid-template-columns:1.4fr 1.1fr 1.1fr 1.1fr 1fr 1.2fr 1.3fr;}
+.f{display:flex;flex-direction:column;gap:4px;}
+.f label{font-size:11px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.f input,.f select{width:100%;padding:6px 9px;font-size:13px;border:1px solid var(--border);border-radius:var(--r);background:var(--surface);color:var(--text);font-family:'IBM Plex Sans',sans-serif;outline:none;transition:border-color .12s;}
+.f input:focus,.f select:focus{border-color:var(--blue);}
+.rh{display:flex;align-items:center;gap:8px;padding-top:18px;}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.d1{background:var(--blue);}.d2{background:var(--green);}.d3{background:var(--orange);}
+.rname{font-size:13px;font-weight:500;}
+.rpill{background:var(--blue-bg);border:1px solid #c3d4f5;border-radius:var(--r);padding:8px 10px;display:flex;flex-direction:column;gap:1px;min-height:52px;justify-content:center;}
+.rpill .rl{font-size:10px;color:var(--blue-text);font-weight:500;font-family:'IBM Plex Mono',monospace;}
+.rpill .rv{font-size:20px;font-weight:500;color:var(--blue-text);}
+.div{height:1px;background:var(--border);margin:1.25rem 0;}
+.clbl{font-size:11px;color:var(--text3);margin-bottom:8px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.08em;}
+.crow{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+.csc{font-size:12px;font-weight:500;min-width:20px;}
+.btrk{flex:1;height:14px;background:var(--surface2);border-radius:4px;overflow:hidden;}
+.bfil{height:100%;border-radius:4px;transition:width .3s ease;}
+.bnum{font-size:12px;color:var(--text2);min-width:36px;text-align:right;font-family:'IBM Plex Mono',monospace;}
+.dgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.dc{border:1px solid var(--border);border-radius:var(--r);padding:12px;}
+.dc .dch{display:flex;align-items:center;gap:6px;margin-bottom:10px;}
+.dc .dch span{font-size:12px;font-weight:500;}
+.dr{display:flex;justify-content:space-between;font-size:13px;padding:4px 0;border-bottom:1px solid var(--border);}
+.dr:last-child{border-bottom:none;}
+.dk{color:var(--text2);}
+.dv{font-weight:500;font-family:'IBM Plex Mono',monospace;}
+.c1{color:var(--blue);}.c2{color:var(--green);}.c3{color:var(--orange);}
+.elayout{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;}
+.erow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.mtog{display:flex;gap:6px;align-items:center;}
+.mtog span{font-size:12px;color:var(--text2);margin-right:2px;}
+.tbtn{padding:6px 16px;font-size:13px;cursor:pointer;border:1px solid var(--border);border-radius:var(--r);background:transparent;color:var(--text2);font-family:'IBM Plex Sans',sans-serif;transition:all .12s;}
+.tbtn.on{background:var(--text);color:#fff;border-color:var(--text);}
+.tbtn:hover:not(.on){background:var(--surface2);}
+.ebig{font-size:30px;font-weight:500;color:var(--text);font-family:'IBM Plex Mono',monospace;}
+.esub{font-size:12px;color:var(--text2);margin-bottom:4px;}
+.emets{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;}
+.emets.tc{grid-template-columns:1fr 1fr 1fr;}
+.em{background:var(--surface2);border-radius:var(--r);padding:10px;}
+.em .el{font-size:11px;color:var(--text2);margin-bottom:3px;}
+.em .ev{font-size:15px;font-weight:500;font-family:'IBM Plex Mono',monospace;}
+.em.hi{background:var(--blue-bg);border:1px solid #c3d4f5;}
+.em.hi .el{color:var(--blue-text);}
+.em.hi .ev{color:var(--blue-text);}
+.fnote{font-size:11px;color:var(--text3);margin-top:10px;font-family:'IBM Plex Mono',monospace;background:var(--surface2);padding:8px 10px;border-radius:var(--r);line-height:1.7;white-space:pre-line;}
+.pnote{font-size:12px;color:#92400e;background:#fffbeb;border:1px solid #fde68a;border-radius:var(--r);padding:8px 12px;margin-bottom:1rem;line-height:1.6;}
+.inote{font-size:11px;color:var(--text2);background:var(--surface2);border-radius:var(--r);padding:6px 10px;margin-top:6px;font-style:italic;}
+.dscrow{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:end;margin-bottom:8px;}
+.abtn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;font-size:12px;border:1px solid var(--border);border-radius:var(--r);background:transparent;cursor:pointer;color:var(--text);font-family:'IBM Plex Sans',sans-serif;margin-top:6px;}
+.abtn:hover{background:var(--surface2);}
+.rmbtn{padding:5px 8px;font-size:14px;border:none;background:transparent;cursor:pointer;color:var(--text2);border-radius:var(--r);}
+.rmbtn:hover{background:var(--surface2);}
+.tc2{border-radius:var(--r);padding:10px 12px;margin-top:8px;}
+.tc2.best{border:1.5px solid var(--blue);background:var(--blue-bg);}
+.tc2.norm{border:1px solid var(--border);background:var(--surface2);}
+.th{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.tt{font-size:12px;font-weight:500;font-family:'IBM Plex Mono',monospace;}
+.bb{font-size:11px;background:#c3d4f5;color:var(--blue-text);padding:2px 8px;border-radius:4px;}
+.tmet{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;font-size:12px;}
+.tmet .tk{color:var(--text2);margin-bottom:1px;}
+.tmet .tv{font-weight:500;font-family:'IBM Plex Mono',monospace;}
+.tnote{font-size:11px;color:var(--text3);margin-top:5px;}
+.topctrl{display:flex;gap:1rem;flex-wrap:wrap;align-items:center;margin-bottom:1.25rem;}
+@media(max-width:680px){
+  .sl,.cl{grid-template-columns:1fr 1fr;}
+  .elayout{grid-template-columns:1fr;}
+  .dgrid{grid-template-columns:1fr;}
+  .emets.tc{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <h1>Lagerberegner</h1>
+  <p>Sikkerhedslager, min/maks-lager, genbestillingspunkt og optimal ordre- eller batchstørrelse</p>
+</div>
+<div class="wrap">
+
+  <div>
+    <p class="slbl">Sikkerhedslager</p>
+    <div class="card">
+      <div class="tabs" id="sstabs">
+        <button class="tab on" onclick="switchMode('simple')">Simpel formel</button>
+        <button class="tab" onclick="switchMode('complex')">Med leveringstidsvariabilitet</button>
+        <button class="tab" onclick="switchMode('periodic')">Periodisk genbestilling</button>
+      </div>
+      <div class="fdesc" id="fdesc">
+        SS = Z x sd x sqrt(LT)<br>
+        Inputs: Standardafvigelse for efterspørgsel (sd) og fast leveringstid (LT)
+      </div>
+      <div class="sgrid" id="ssrows"></div>
+      <div class="div"></div>
+      <div class="clbl">Sammenligning af sikkerhedslager</div>
+      <div id="sschart"></div>
+      <div class="div"></div>
+      <div class="dgrid" id="derived"></div>
+    </div>
+  </div>
+
+  <div>
+    <p class="slbl">Optimal ordre- og batchstørrelse</p>
+    <div class="card">
+      <div class="topctrl">
+        <div class="tabs" id="eoqtabs">
+          <button class="tab on" onclick="switchEoq('basic')">Standard EOQ</button>
+          <button class="tab" onclick="switchEoq('discount')">Maengderabatter</button>
+        </div>
+        <div class="mtog">
+          <span>Kontekst:</span>
+          <button class="tbtn on" id="btnp" onclick="switchProd('purchase')">Indkob</button>
+          <button class="tbtn" id="btnpr" onclick="switchProd('production')">Produktion</button>
+        </div>
+      </div>
+
+      <div id="eoqbasic">
+        <div id="prodnote" class="pnote" style="display:none">
+          I produktionsmiljoer erstatter omstillingsomkostningen ordreomkostningen. Produktionsraten (p) bestemmer hvor hurtigt lageret opbygges under produktionen. Beregneren viser bade EPQ og simpel EOQ sa du kan se forskellen.
+        </div>
+        <div class="elayout">
+          <div>
+            <div class="erow">
+              <div class="f"><label id="lblD">Arlig eftersporgsel (D)</label><input type="number" id="eD" value="10000" min="1" oninput="calcEoq()"></div>
+              <div class="f"><label id="lblS">Ordreomkostning (S, kr.)</label><input type="number" id="eS" value="200" min="0" oninput="calcEoq()"></div>
+            </div>
+            <div class="erow">
+              <div class="f"><label id="lblC">Enhedspris (C, kr.)</label><input type="number" id="eC" value="50" step="0.01" oninput="calcEoq()"></div>
+              <div class="f"><label>Lagerholdssats (i, %)</label><input type="number" id="ei" value="20" step="0.1" oninput="calcEoq()"></div>
+            </div>
+            <div class="erow">
+              <div class="f"><label>Gns. eftersporgsel/dag (d)</label><input type="number" id="ed" value="27.4" step="0.1" oninput="calcEoq()"></div>
+              <div class="f"><label id="lbllt">Leveringstid (dage)</label><input type="number" id="elt" value="7" min="1" oninput="calcEoq()"></div>
+            </div>
+            <div class="erow">
+              <div class="f"><label>Sikkerhedslager (SS)</label><input type="number" id="ess" value="0" min="0" step="0.1" oninput="calcEoq()"></div>
+              <div class="f" id="prodrow" style="display:none"><label>Produktionsrate/dag (p)</label><input type="number" id="ep" value="150" min="1" oninput="calcEoq()"></div>
+            </div>
+            <div class="inote">Maks-lager beregnes som: Genbestillingspunkt + EOQ (jf. disponeringssystemet)</div>
+          </div>
+          <div id="eoqres"></div>
+        </div>
+      </div>
+
+      <div id="eoqdsc" style="display:none">
+        <div class="elayout">
+          <div>
+            <div class="erow">
+              <div class="f"><label>Arlig eftersporgsel (D)</label><input type="number" id="dD" value="10000" min="1" oninput="calcDsc()"></div>
+              <div class="f"><label>Ordreomkostning (S, kr.)</label><input type="number" id="dS" value="200" min="0" oninput="calcDsc()"></div>
+            </div>
+            <div class="erow">
+              <div class="f"><label>Lagerholdssats (i, %)</label><input type="number" id="di" value="20" step="0.1" oninput="calcDsc()"></div>
+            </div>
+            <p style="font-size:12px;color:var(--text2);margin-bottom:8px;">Prisniveauer (op til 4 trin)</p>
+            <div id="tiers"></div>
+            <button class="abtn" onclick="addTier()">+ Tilfoej prisniveau</button>
+          </div>
+          <div id="dscres"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<script>
+const ZM={0.80:0.84,0.85:1.04,0.90:1.28,0.95:1.645,0.97:1.88,0.99:2.326};
+const SLL={0.80:'80 %',0.85:'85 %',0.90:'90 %',0.95:'95 %',0.97:'97 %',0.99:'99 %'};
+const COL=['var(--blue)','var(--green)','var(--orange)'];
+const DOTS=['d1','d2','d3'];
+const VC=['c1','c2','c3'];
+let ssMode='simple',eoqTab='basic',prodMode='purchase';
+
+const SC=[
+  {n:'Scenarie 1',dm:50,sd:10,lt:7,slt:2,sv:0.95},
+  {n:'Scenarie 2',dm:50,sd:10,lt:7,slt:2,sv:0.90},
+  {n:'Scenarie 3',dm:50,sd:10,lt:7,slt:2,sv:0.99},
+];
+
+function switchMode(m){
+  ssMode=m;
+  document.getElementById('sstabs').querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('on',(i===0&&m==='simple')||(i===1&&m==='complex')||(i===2&&m==='periodic')));
+  const fd=document.getElementById('fdesc');
+  if(m==='simple') fd.innerHTML='SS = Z x sd x sqrt(LT)<br>Inputs: Standardafvigelse for eftersporgsel (sd) og fast leveringstid (LT)';
+  else if(m==='complex') fd.innerHTML='SS = Z x sqrt(sd^2 x LT + d^2 x sLT^2)<br>Inputs: Standardafvigelse for eftersporgsel (sd) og standardafvigelse for leveringstid (sLT) — beregneren oplosofter i anden internt';
+  else fd.innerHTML='SS = Z x sd x sqrt(LT + R) &nbsp;|&nbsp; ROP = (d x (LT + R)) + SS<br>Inputs: Leveringstid (LT) + Kontrolinterval (R). SS og ROP tager begge hoejde for kontrolintervallet.';
+  renderSS();
+}
+
+function switchEoq(m){
+  eoqTab=m;
+  document.getElementById('eoqtabs').querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('on',(i===0&&m==='basic')||(i===1&&m==='discount')));
+  document.getElementById('eoqbasic').style.display=m==='basic'?'':'none';
+  document.getElementById('eoqdsc').style.display=m==='discount'?'':'none';
+  if(m==='discount')calcDsc();
+}
+
+function switchProd(m){
+  prodMode=m;
+  document.getElementById('btnp').classList.toggle('on',m==='purchase');
+  document.getElementById('btnpr').classList.toggle('on',m==='production');
+  const isP=m==='production';
+  document.getElementById('prodnote').style.display=isP?'':'none';
+  document.getElementById('prodrow').style.display=isP?'':'none';
+  document.getElementById('lblS').textContent=isP?'Omstillingsomk. (S, kr.)':'Ordreomkostning (S, kr.)';
+  document.getElementById('lblD').textContent=isP?'Arlig produktion (D)':'Arlig eftersporgsel (D)';
+  document.getElementById('lblC').textContent=isP?'Enhedsomkostning (C, kr.)':'Enhedspris (C, kr.)';
+  document.getElementById('lbllt').textContent=isP?'Omstillingstid (dage)':'Leveringstid (dage)';
+  calcEoq();
+}
+
+function renderSS(){
+  const isC=ssMode==='complex';
+  const isP=ssMode==='periodic';
+  const gridCls=isC?'cl':isP?'pl':'sl';
+  document.getElementById('ssrows').innerHTML=SC.map((s,i)=>`
+    <div class="srow ${gridCls}">
+      <div class="rh"><span class="dot ${DOTS[i]}"></span><span class="rname">${s.n}</span></div>
+      <div class="f"><label>Gns. eftersporgsel/dag (d)</label><input type="number" id="dm${i}" value="${s.dm}" min="0" step="1" oninput="updSS()"></div>
+      <div class="f"><label>Std.afv. eftersporgsel (sd)</label><input type="number" id="sd${i}" value="${s.sd}" min="0" step="0.5" oninput="updSS()"></div>
+      <div class="f"><label>Leveringstid (dage)</label><input type="number" id="lt${i}" value="${s.lt}" min="1" oninput="updSS()"></div>
+      ${isC?`<div class="f"><label>Std.afv. lev.tid (sLT)</label><input type="number" id="slt${i}" value="${s.slt}" min="0" step="0.5" oninput="updSS()"></div>`:''}
+      ${isP?`<div class="f"><label>Kontrolinterval (R, dage)</label><input type="number" id="ri${i}" value="14" min="1" oninput="updSS()"></div>`:''}
+      <div class="f"><label>Serviceniveau</label>
+        <select id="sv${i}" onchange="updSS()">
+          ${Object.entries(SLL).map(([v,l])=>`<option value="${v}" ${parseFloat(v)===s.sv?'selected':''}>${l}</option>`).join('')}
+        </select>
+      </div>
+      <div class="rpill"><span class="rl">Sikkerhedslager</span><span class="rv" id="ssv${i}">-</span></div>
+    </div>`).join('');
+  updSS();
+}
+
+function cSS(dm,sd,lt,slt,sv,r){
+  const z=ZM[sv]||1.645;
+  if(ssMode==='simple') return z*sd*Math.sqrt(lt);
+  if(ssMode==='complex') return z*Math.sqrt(sd*sd*lt+dm*dm*slt*slt);
+  // periodic: SS = Z * sd * sqrt(LT + R)
+  return z*sd*Math.sqrt(lt+(r||0));
+}
+
+function updSS(){
+  const res=SC.map((_,i)=>{
+    const dm=parseFloat(document.getElementById('dm'+i)?.value)||0;
+    const sd=parseFloat(document.getElementById('sd'+i)?.value)||0;
+    const lt=parseFloat(document.getElementById('lt'+i)?.value)||1;
+    const slt=ssMode==='complex'?(parseFloat(document.getElementById('slt'+i)?.value)||0):0;
+    const r=ssMode==='periodic'?(parseFloat(document.getElementById('ri'+i)?.value)||0):0;
+    const sv=parseFloat(document.getElementById('sv'+i)?.value)||0.95;
+    const ss=cSS(dm,sd,lt,slt,sv,r);
+    document.getElementById('ssv'+i).textContent=ss.toFixed(1);
+    return{ss,dm,lt,sv,r};
+  });
+  renderChart(res);renderDerived(res);
+}
+
+function renderChart(res){
+  const mx=Math.max(...res.map(r=>r.ss),1);
+  document.getElementById('sschart').innerHTML=res.map((r,i)=>`
+    <div class="crow">
+      <span class="csc" style="color:${COL[i]}">S${i+1}</span>
+      <div class="btrk"><div class="bfil" style="width:${Math.max(2,r.ss/mx*100).toFixed(1)}%;background:${COL[i]};"></div></div>
+      <span class="bnum">${r.ss.toFixed(1)}</span>
+    </div>`).join('');
+}
+
+function renderDerived(res){
+  const isP=ssMode==='periodic';
+  document.getElementById('derived').innerHTML=res.map((rv,i)=>{
+    const ss=rv.ss;
+    const rop=isP?rv.dm*(rv.lt+rv.r)+ss:rv.dm*rv.lt+ss;
+    const minS=ss;
+    const ropLbl=isP?'Genbestillingspunkt (periodisk)':'Genbestillingspunkt';
+    return `
+      <div class="dc">
+        <div class="dch"><span class="dot ${DOTS[i]}"></span><span>Scenarie ${i+1} - SN ${(rv.sv*100).toFixed(0)} %</span></div>
+        <div class="dr"><span class="dk">Sikkerhedslager</span><span class="dv ${VC[i]}">${ss.toFixed(1)}</span></div>
+        <div class="dr"><span class="dk">Minimumslager</span><span class="dv ${VC[i]}">${minS.toFixed(1)}</span></div>
+        ${isP?`<div class="dr"><span class="dk">Kontrolinterval (R)</span><span class="dv ${VC[i]}">${rv.r} dage</span></div>`:''}
+        <div class="dr"><span class="dk">${ropLbl}</span><span class="dv ${VC[i]}">${rop.toFixed(1)}</span></div>
+      </div>`;
+  }).join('')+'<div style="grid-column:1/-1;font-size:11px;color:var(--text3);font-style:italic;">Maksimumslager = Genbestillingspunkt + EOQ — beregnes i EOQ-sektionen nedenfor.</div>';
+}
+
+function calcEoq(){
+  const D=parseFloat(document.getElementById('eD')?.value)||0;
+  const S=parseFloat(document.getElementById('eS')?.value)||0;
+  const C=parseFloat(document.getElementById('eC')?.value)||0;
+  const iv=parseFloat(document.getElementById('ei')?.value)||0;
+  const d=parseFloat(document.getElementById('ed')?.value)||0;
+  const lt=parseFloat(document.getElementById('elt')?.value)||0;
+  const ss=parseFloat(document.getElementById('ess')?.value)||0;
+  const p=parseFloat(document.getElementById('ep')?.value)||999999;
+  const H=C*iv/100;
+  const isP=prodMode==='production';
+  const eoqBase=H>0?Math.sqrt(2*D*S/H):0;
+  const epqF=isP&&p>d?Math.sqrt(p/(p-d)):1;
+  const Q=eoqBase*epqF;
+  const rop=d*lt+ss;
+  // Min = SS, Maks = ROP + EOQ (jf. dokumentet side 17)
+  const minStock=ss;
+  const maxStock=isP?Q*(1-d/p):rop+Q;
+  const avgStock=isP?Q/2*(1-d/p):ss+Q/2;
+  const orders=D/(Q||1);
+  const cost=D*C+(D/(Q||1))*S+avgStock*H;
+  const cycleT=(Q/d).toFixed(1);
+  const prodT=isP?(Q/p).toFixed(1):null;
+  const diff=isP?((Q-eoqBase)/(eoqBase||1)*100).toFixed(1):null;
+  const lbl=isP?'Optimal batchstorrelse (EPQ)':'Optimal ordremaengde (EOQ)';
+  const fn=isP
+    ?`EPQ = EOQ x sqrt(P/(P-d)) = ${Q.toFixed(0)} enheder\nEOQ (uden korrektion) = ${eoqBase.toFixed(0)} enheder  (forskel: ${diff} %)\nH = C x i = ${H.toFixed(2)} kr./enhed/ar`
+    :`EOQ = sqrt(2DS/H) = ${Q.toFixed(0)} enheder\nH = C x i = ${H.toFixed(2)} kr./enhed/ar\nMaks-lager = ROP + EOQ = ${rop.toFixed(1)} + ${Q.toFixed(0)} = ${maxStock.toFixed(0)}`;
+
+  document.getElementById('eoqres').innerHTML=`
+    <div>
+      <div class="esub">${lbl}</div>
+      <div class="ebig">${Q.toFixed(0)}</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:2px;">enheder pr. ${isP?'batch':'ordre'}</div>
+      <div class="emets ${isP?'tc':''}">
+        <div class="em hi"><div class="el">Minimumslager (SS)</div><div class="ev">${minStock.toFixed(1)}</div></div>
+        <div class="em hi"><div class="el">Maksimumslager</div><div class="ev">${maxStock.toFixed(0)}</div></div>
+        ${isP?`<div class="em hi"><div class="el">Gns. lagerbeholdning</div><div class="ev">${avgStock.toFixed(1)}</div></div>`:''}
+        <div class="em"><div class="el">Genbestillingspunkt</div><div class="ev">${rop.toFixed(1)}</div></div>
+        <div class="em"><div class="el">${isP?'Produktionskorsler/ar':'Ordrer pr. ar'}</div><div class="ev">${orders.toFixed(1)}</div></div>
+        ${isP?`<div class="em"><div class="el">Cyklustid (dage)</div><div class="ev">${cycleT}</div></div>`:''}
+        ${isP?`<div class="em"><div class="el">Produktionstid/batch</div><div class="ev">${prodT} dage</div></div>`:''}
+        <div class="em"><div class="el">Samlet arlig omk.</div><div class="ev">${cost.toFixed(0)} kr.</div></div>
+      </div>
+      <div class="fnote">${fn}</div>
+    </div>`;
+}
+
+let tiers=[{mn:0,mx:499,pr:50},{mn:500,mx:999,pr:44},{mn:1000,mx:null,pr:40}];
+
+function renderTiers(){
+  document.getElementById('tiers').innerHTML=tiers.map((t,i)=>`
+    <div class="dscrow">
+      <div class="f"><label>Min. antal</label><input type="number" value="${t.mn}" min="0" oninput="tiers[${i}].mn=parseInt(this.value)||0;calcDsc()"></div>
+      <div class="f"><label>Maks. antal</label><input type="number" value="${t.mx===null?'':t.mx}" placeholder="ubegrænset" oninput="tiers[${i}].mx=this.value===''?null:parseInt(this.value);calcDsc()"></div>
+      <div class="f"><label>Enhedspris (kr.)</label><input type="number" value="${t.pr}" min="0" step="0.01" oninput="tiers[${i}].pr=parseFloat(this.value)||0;calcDsc()"></div>
+      <button class="rmbtn" onclick="removeTier(${i})">x</button>
+    </div>`).join('');
+}
+
+function addTier(){
+  if(tiers.length>=4)return;
+  const last=tiers[tiers.length-1];
+  tiers.push({mn:(last.mx||0)+1,mx:null,pr:Math.max(0,last.pr-2)});
+  if(tiers.length>1)tiers[tiers.length-2].mx=tiers[tiers.length-1].mn-1;
+  renderTiers();calcDsc();
+}
+
+function removeTier(i){tiers.splice(i,1);renderTiers();calcDsc();}
+
+function calcDsc(){
+  renderTiers();
+  const D=parseFloat(document.getElementById('dD')?.value)||10000;
+  const S=parseFloat(document.getElementById('dS')?.value)||200;
+  const rate=parseFloat(document.getElementById('di')?.value)||20;
+  const res=tiers.map(t=>{
+    const H=t.pr*rate/100;
+    const eoq=H>0?Math.sqrt(2*D*S/H):0;
+    const ok=eoq>=t.mn&&(t.mx===null||eoq<=t.mx);
+    const Q=ok?eoq:Math.max(t.mn,t.mx===null?t.mn:Math.min(eoq,t.mx));
+    const cost=D*t.pr+(D/Q)*S+(Q/2)*H;
+    return{t,eoq,Q,ok,cost};
+  });
+  const best=res.reduce((a,b)=>a.cost<b.cost?a:b);
+  document.getElementById('dscres').innerHTML=`
+    <div>
+      <div class="esub">Sammenligning af prisniveauer</div>
+      ${res.map(r=>`
+        <div class="tc2 ${r===best?'best':'norm'}">
+          <div class="th">
+            <span class="tt">${r.t.mn}-${r.t.mx===null?'ubegr.':r.t.mx} stk. @ ${r.t.pr} kr.</span>
+            ${r===best?'<span class="bb">Bedste valg</span>':''}
+          </div>
+          <div class="tmet">
+            <div><div class="tk">EOQ</div><div class="tv">${r.eoq.toFixed(0)}</div></div>
+            <div><div class="tk">Ordrestr.</div><div class="tv">${r.Q.toFixed(0)}</div></div>
+            <div><div class="tk">Arlig omk.</div><div class="tv">${r.cost.toFixed(0)} kr.</div></div>
+          </div>
+          ${!r.ok?'<div class="tnote">EOQ uden for intervallet - justeret til granse</div>':''}
+        </div>`).join('')}
+    </div>`;
+}
+
+renderSS();calcEoq();renderTiers();calcDsc();
+</script>
+</body>
+</html>
