@@ -284,7 +284,6 @@ function renderDerived(res){
       <div class="dc">
         <div class="dch"><span class="dot ${DOTS[i]}"></span><span>Scenarie ${i+1} - SN ${(rv.sv*100).toFixed(0)} %</span></div>
         <div class="dr"><span class="dk">Sikkerhedslager</span><span class="dv ${VC[i]}">${ss.toFixed(1)}</span></div>
-        <div class="dr"><span class="dk">Minimumslager</span><span class="dv ${VC[i]}">${ss.toFixed(1)}</span></div>
         ${isPer?`<div class="dr"><span class="dk">Kontrolinterval (R)</span><span class="dv ${VC[i]}">${rv.r} dage</span></div>`:''}
         <div class="dr"><span class="dk">${isPer?'Genbestillingspunkt (periodisk)':'Genbestillingspunkt'}</span><span class="dv ${VC[i]}">${rop.toFixed(1)}</span></div>
       </div>`;
@@ -323,7 +322,6 @@ function calcEoq(){
       <div class="ebig">${Q.toFixed(0)}</div>
       <div style="font-size:12px;color:var(--text2);margin-top:2px;">enheder pr. ${isP?'batch':'ordre'}</div>
       <div class="emets ${isP?'tc':''}">
-        <div class="em hi"><div class="el">Minimumslager (SS)</div><div class="ev">${minStock.toFixed(1)}</div></div>
         <div class="em hi"><div class="el">Maksimumslager</div><div class="ev">${maxStock.toFixed(0)}</div></div>
         ${isP?`<div class="em hi"><div class="el">Gns. lagerbeholdning</div><div class="ev">${avgStock.toFixed(1)}</div></div>`:''}
         <div class="em"><div class="el">Genbestillingspunkt</div><div class="ev">${rop.toFixed(1)}</div></div>
